@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retro Games Catalog</title>
+  <style>
+    body {
+      background-color: #121212;
+      color: #ffffff;
+      font-family: system-ui, -apple-system, sans-serif;
+      margin: 0;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      box-sizing: border-box;
+    }
+    h1 {
+      margin-bottom: 24px;
+      font-size: 1.6rem;
+      text-align: center;
+    }
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+      width: 100%;
+      max-width: 800px;
+    }
+    .game-card {
+      background-color: #1e1e1e;
+      border: 1px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+      text-decoration: none;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    }
+    .game-card:hover {
+      transform: translateY(-4px);
+      border-color: #0088cc;
+      box-shadow: 0 6px 16px rgba(0, 136, 204, 0.3);
+    }
+    .game-card img {
+      width: 100%;
+      height: 140px;
+      object-fit: cover;
+      background-color: #000;
+    }
+    .game-card .title {
+      padding: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      line-height: 1.3;
+      word-break: break-word;
+    }
+    #emulator-container {
+      width: 640px;
+      height: 480px;
+      max-width: 95vw;
+      max-height: 75vh;
+      border: 2px solid #333;
+      border-radius: 8px;
+      overflow: hidden;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1 id="page-title">Выберите игру</h1>
+
+  <!-- Каталог карточек -->
+  <div id="games-menu" class="games-grid"></div>
+
+  <!-- Эмулятор -->
+  <div id="emulator-container">
+    <div id="game"></div>
+  </div>
+
+  <script>
+    // =========================================================
+    // 🎮 Полная конфигурация на основе вашего локального диска
+    // =========================================================
+    const GAMES_LIST = [
+      {
+        title: 'Super Mario Bros',
+        rom: '001.SuperMario.nes',
+        core: 'nes',
+        cover: 'covers/001.SuperMario.jpg' // если обложка .png — поменяйте расширение
+      },
+      {
+        title: 'Sonic The Hedgehog (NES)',
+        rom: '037.SonicTheHedgehog(Unl)[!].nes',
+        core: 'nes',
+        cover: 'covers/037.SonicTheHedgehog(Unl)[!].jpg'
+      },
+      {
+        title: 'Earthworm Jim',
+        rom: 'earthworm_jim.gba',
+        core: 'gba',
+        cover: 'covers/earthworm_jim.jpg'
+      },
+      {
+        title: 'Earthworm Jim 2',
+        rom: 'earthworm_jim_2.gba',
+        core: 'gba',
+        cover: 'covers/earthworm_jim_2.jpg'
+      },
+      {
+        title: 'Mortal Kombat 3',
+        rom: 'MortalKombat3-Special56Peoples[p1].nes',
+        core: 'nes',
+        cover: 'covers/MortalKombat3-Special56Peoples[p1].jpg'
+      },
+      {
+        title: 'Predator 2',
+        rom: 'Predator2.bin', // или Predator2 если загружали без расширения
+        core: 'sega',
+        cover: 'covers/Predator2.jpg'
+      },
+      {
+        title: 'Sonic the Hedgehog (Sega)',
+        rom: 'sonic.bin', // или sonic если загружали без расширения
+        core: 'sega',
+        cover: 'covers/sonic.jpg'
+      }
+    ];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const romFile = urlParams.get('rom');
+    const coreName = urlParams.get('core') || 'sega';
+    const gameTitle = urlParams.get('title') || 'Retro Game';
+
+    if (romFile) {
+      document.getElementById('games-menu').style.display = 'none';
+      document.getElementById('emulator-container').style.display = 'block';
+      document.getElementById('page-title').innerText = gameTitle;
+
+      EJS_player = '#game';
+      EJS_core = coreName;
+      EJS_gameUrl = romFile;
+      EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+
+      const script = document.createElement('script');
+      script.src = 'https://cdn.emulatorjs.org/stable/data/loader.js';
+      document.body.appendChild(script);
+    } else {
+      const menuContainer = document.getElementById('games-menu');
+      
+      GAMES_LIST.forEach(game => {
+        const card = document.createElement('a');
+        card.className = 'game-card';
+        card.href = `?rom=${encodeURIComponent(game.rom)}&core=${encodeURIComponent(game.core)}&title=${encodeURIComponent(game.title)}`;
+        
+        card.innerHTML = `
+          <img src="${game.cover}" alt="${game.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/140x140?text=No+Cover'">
+          <div class="title">${game.title}</div>
+        `;
+        
+        menuContainer.appendChild(card);
+      });
+    }
+  </script>
+
+</body>
+</html>
